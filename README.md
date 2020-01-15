@@ -10,6 +10,10 @@ Compile for GPU using CUDA.
 
     nvcc --compiler-options '-fPIC' -o libmandelbrot.so --shared mandelbrot.cu
 
-Run.
+Render and save to JPEG.
 
     python3 render.py
+
+Explore the fractal interactively.
+
+    python3 explore.py
