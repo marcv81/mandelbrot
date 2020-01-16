@@ -7,8 +7,8 @@ width, height = 12000, 8000
 # Loads the shared library.
 libmandelbrot = ctypes.cdll.LoadLibrary('./libmandelbrot.so')
 libmandelbrot.render.argtypes = (ctypes.c_void_p,
-    ctypes.c_int, ctypes.c_float, ctypes.c_float,
-    ctypes.c_int, ctypes.c_float, ctypes.c_float)
+    ctypes.c_int, ctypes.c_double, ctypes.c_double,
+    ctypes.c_int, ctypes.c_double, ctypes.c_double)
 
 # Renders the image.
 buffer_size = 3 * width * height

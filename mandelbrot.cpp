@@ -2,7 +2,7 @@
 #include <thread>
 
 // Algorithm parameters.
-const float escape_radius = 2.5;
+const double escape_radius = 2.5;
 const int max_iterations = 60; // Must be divisible by 3.
 const int threads_size = 12;
 
@@ -13,12 +13,12 @@ typedef struct {
 } color_t;
 
 // Counts the number of iterations for the series to diverge.
-uint8_t count_iterations(float x, float y) {
+uint8_t count_iterations(double x, double y) {
     uint8_t iterations = 0;
-    float u = 0.0, v = 0.0;
+    double u = 0.0, v = 0.0;
     while (iterations < max_iterations && (u * u + v * v < escape_radius * escape_radius)) {
-        float _u = u * u - v * v + x;
-        float _v = 2 * u * v + y;
+        double _u = u * u - v * v + x;
+        double _v = 2 * u * v + y;
         u = _u;
         v = _v;
         iterations++;
@@ -27,7 +27,7 @@ uint8_t count_iterations(float x, float y) {
 }
 
 // Linerarly scales the interval [0:size] to [start:stop].
-float scale(int index, int size, float start, float stop)
+double scale(int index, int size, double start, double stop)
 {
     return (stop - start) * index / size + start;
 }
@@ -60,13 +60,13 @@ color_t palette(uint8_t iterations) {
 
 // Partially renders the image buffer for a single thread.
 void render_thread(uint8_t *buffer, int thread,
-    int x_size, float x_start, float x_stop,
-    int y_size, float y_start, float y_stop)
+    int x_size, double x_start, double x_stop,
+    int y_size, double y_start, double y_stop)
 {
     for (int y_index=thread; y_index<y_size; y_index+=threads_size) {
-        float y = scale(y_index, y_size, y_start, y_stop);
+        double y = scale(y_index, y_size, y_start, y_stop);
         for (int x_index=0; x_index<x_size; x_index++) {
-            float x = scale(x_index, x_size, x_start, x_stop);
+            double x = scale(x_index, x_size, x_start, x_stop);
             uint8_t iterations = count_iterations(x, y);
             color_t color = palette(iterations);
             paint(buffer, x_index, y_index, x_size, color);
@@ -76,8 +76,8 @@ void render_thread(uint8_t *buffer, int thread,
 
 // Renders the entire image buffer.
 extern "C" void render(uint8_t *buffer,
-    int x_size, float x_start, float x_stop,
-    int y_size, float y_start, float y_stop)
+    int x_size, double x_start, double x_stop,
+    int y_size, double y_start, double y_stop)
 {
     std::thread threads[threads_size];
     for (int i=0; i<threads_size; i++) {

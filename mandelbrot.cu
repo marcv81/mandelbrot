@@ -1,7 +1,7 @@
 #include <cstdint>
 
 // Algorithm parameters.
-const float escape_radius = 2.5;
+const double escape_radius = 2.5;
 const int max_iterations = 60; // Must be divisible by 3.
 const int blocks_size_x = 8;
 const int blocks_size_y = 10;
@@ -15,12 +15,12 @@ typedef struct {
 } color_t;
 
 // Counts the number of iterations for the series to diverge.
-__device__ uint8_t count_iterations(float x, float y) {
+__device__ uint8_t count_iterations(double x, double y) {
     uint8_t iterations = 0;
-    float u = 0.0, v = 0.0;
+    double u = 0.0, v = 0.0;
     while (iterations < max_iterations && (u * u + v * v < escape_radius * escape_radius)) {
-        float _u = u * u - v * v + x;
-        float _v = 2 * u * v + y;
+        double _u = u * u - v * v + x;
+        double _v = 2 * u * v + y;
         u = _u;
         v = _v;
         iterations++;
@@ -29,7 +29,7 @@ __device__ uint8_t count_iterations(float x, float y) {
 }
 
 // Linerarly scales the interval [0:size] to [start:stop].
-__device__ float scale(int index, int size, float start, float stop)
+__device__ double scale(int index, int size, double start, double stop)
 {
     return (stop - start) * index / size + start;
 }
@@ -62,17 +62,17 @@ __device__ color_t palette(uint8_t iterations) {
 
 // Partially renders the image buffer for a single thread.
 __global__ void render_thread(uint8_t *buffer,
-    int x_size, float x_start, float x_stop,
-    int y_size, float y_start, float y_stop)
+    int x_size, double x_start, double x_stop,
+    int y_size, double y_start, double y_stop)
 {
     int y_first = threadIdx.y + (blockIdx.y * blockDim.y);
     int y_step = blockDim.y * gridDim.y;
     for (int y_index=y_first; y_index<y_size; y_index+=y_step) {
-        float y = scale(y_index, y_size, y_start, y_stop);
+        double y = scale(y_index, y_size, y_start, y_stop);
         int x_first = threadIdx.x + (blockIdx.x * blockDim.x);
         int x_step = blockDim.x * gridDim.x;
         for (int x_index=x_first; x_index<x_size; x_index+=x_step) {
-            float x = scale(x_index, x_size, x_start, x_stop);
+            double x = scale(x_index, x_size, x_start, x_stop);
             uint8_t iterations = count_iterations(x, y);
             color_t color = palette(iterations);
             paint(buffer, x_index, y_index, x_size, color);
@@ -82,8 +82,8 @@ __global__ void render_thread(uint8_t *buffer,
 
 // Renders the entire image buffer.
 extern "C" void render(uint8_t *buffer,
-    int x_size, float x_start, float x_stop,
-    int y_size, float y_start, float y_stop)
+    int x_size, double x_start, double x_stop,
+    int y_size, double y_start, double y_stop)
 {
     uint8_t* gpu_buffer;
     size_t size = sizeof(uint8_t) * 3 * x_size * y_size;

@@ -4,8 +4,8 @@ import pyglet
 # Loads the shared library.
 libmandelbrot = ctypes.cdll.LoadLibrary('./libmandelbrot.so')
 libmandelbrot.render.argtypes = (ctypes.c_void_p,
-    ctypes.c_int, ctypes.c_float, ctypes.c_float,
-    ctypes.c_int, ctypes.c_float, ctypes.c_float)
+    ctypes.c_int, ctypes.c_double, ctypes.c_double,
+    ctypes.c_int, ctypes.c_double, ctypes.c_double)
 
 # Pyglet window with an interactive Mandelbrot fractal.
 class MandelbrotWindow(pyglet.window.Window):
